@@ -1,0 +1,83 @@
+Instructions:
+=============
+
+Open your playwright project in VS Code
+
+Launch VS Code.
+
+Create a new folder (e.g., JS-Exercises) at root level of your playwright project.
+
+Inside that folder, create a new file:
+=======================================
+<yourname>-js-solution.js
+
+Code your solution in file.
+
+To execute the .js code:
+=========================
+Open a terminal and cd to your folder (JS-Exercises)
+Run the command:
+node yourname-js-solution.js
+
+Exercise 1 – Variables & Concatenation
+==================
+
+Define variables for studentName, subject, and marks.
+Print a welcome message that concatenates the name and subject.
+
+Exercise 2 – Operators
+==================
+
+Use arithmetic operators to:
+Give random mark to a student.
+Add bonus marks (marks + 5).
+
+Show difference (100 - marks).
+
+Exercise 3 – Equality & Comparison
+==================
+
+Check if marks are exactly equal to 50 using == and ===.
+Compare if marks are greater than 40 and less than or equal to 100.
+
+Use a logical operator (&&, ||) to combine conditions.
+
+Exercise 4 – Data Types
+==================
+
+Create variables of different data types: string, number, boolean, null, undefined, and an array.
+Print the type of each variable using typeof.
+
+Exercise 5 – Conditional Statements
+==================
+
+Use if-else to assign grades based on marks (A, B, C, Fail).
+
+Use a switch statement on the subject variable to print a subject-specific motivational message.
+
+Exercise 6 – Functions
+==================
+
+Create a function calculateGrade(marks) that returns the grade.
+Call this function and print the result for the student.
+
+Exercise 7 – Loops
+==================
+
+Use a for loop to print numbers from 1 to 5 with the student’s name.
+Use a while loop to count down from marks to 0 in steps of 10.
+Use a do-while loop to ensure at least one motivational message is printed, even if the marks are 0.
+
+Completion Criteria:
+======================
+
+By the end of 15 minutes, you should have practiced:
+
+1. Declaring and concatenating variables.
+2. Using arithmetic, increment/decrement, equality, comparison, and logical operators.
+3. Creating variables of all major data types.
+4. Writing if-else and switch statements.
+5. Writing and calling a function.
+6. Using for, while, and do-while loops.
+
+

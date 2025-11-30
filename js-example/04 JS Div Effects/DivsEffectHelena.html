@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<body>
+ 
+<h1>What Can JavaScript Do?</h1>
+
+<table border="1">
+    <tr>
+        <th>header 1</th>
+        <th>header 2</th>
+        <th>header 3</th>
+    </tr>
+    <tr>
+        <td>data 2-1</td>
+        <td>data 2-2</td>
+        <td>data 2-3</td>
+    </tr>
+    <tr>
+        <td>data 3-11</td>
+        <td>data 3-2</td>
+        <td>data 3-3</td>
+    </tr>
+</table>
+
+ 
+<p id="demo" role="demo">JavaScript can change the style of an HTML element.</p>
+
+ 
+<button type="button" onclick="document.getElementById('demo').style.fontSize='35px'">Click Me!</button>
+<button type="button" onclick="document.getElementById('demo').style.fontSize='18px'">Reset!</button>
+ 
+<br><br>
+ 
+<p id="hide">JavaScript can hide HTML elements.</p>
+ 
+<button type="button" onclick="document.getElementById('hide').style.display='none'">Click Me!</button>
+<button type="button" onclick="document.getElementById('hide').style.display='block'">Reset!</button>
+ 
+<p>JavaScript can show hidden HTML elements. A Div element is hidden below. Click the button to reveal</p>
+ 
+<p id="show" style="display:none">Hello JavaScript!</p>
+ 
+<button type="button" onclick="document.getElementById('show').style.display='block'">Click Me!</button>
+<button type="button" onclick="document.getElementById('show').style.display='none'">Reset!</button>
+ 
+<h2>JavaScript in Body and inline JavaScript script changes inline div content </h2>
+ 
+<p id="inline"></p>
+ 
+<script>
+document.getElementById("demo").innerHTML = "My First JavaScript";
+</script>
+ 
+</body>
+</html>
+ 
