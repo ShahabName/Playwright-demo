@@ -23,29 +23,28 @@ Exercise 1 – Variables & Concatenation
 ==================
 
 Define variables for studentName, subject, and marks.
-Print a welcome message that concatenates the name and subject.
+Print a welcome message that concatenates the studentName and subject.
 
 Exercise 2 – Operators
 ==================
 
 Use arithmetic operators to:
-Give random mark to a student.
-Add bonus marks (marks + 5).
-
-Show difference (100 - marks).
+    Give random mark to a student and print the marks.
+    Add bonus marks (marks + 5) and print the new marks.
+    Show difference (100 - marks) and print it.
 
 Exercise 3 – Equality & Comparison
 ==================
 
-Check if marks are exactly equal to 50 using == and ===.
-Compare if marks are greater than 40 and less than or equal to 100.
+Check if marks are exactly equal to 50 using == and === operators. Print the results.
+Compare if marks are greater than 40 and less than or equal to 100. Print the results.
 
 Use a logical operator (&&, ||) to combine conditions.
 
 Exercise 4 – Data Types
 ==================
 
-Create variables of different data types: string, number, boolean, null, undefined, and an array.
+Create variables of different data types: string, number, boolean, null, undefined, and an array. Assign appropriate values to each.
 Print the type of each variable using typeof.
 
 Exercise 5 – Conditional Statements
@@ -71,7 +70,7 @@ Use a do-while loop to ensure at least one motivational message is printed, even
 Completion Criteria:
 ======================
 
-By the end of 15 minutes, you should have practiced:
+By the end of this 15 minutes exercise, you should have practiced:
 
 1. Declaring and concatenating variables.
 2. Using arithmetic, increment/decrement, equality, comparison, and logical operators.
