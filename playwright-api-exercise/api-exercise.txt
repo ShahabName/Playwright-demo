@@ -130,7 +130,7 @@ import { test, expect, request, APIRequestContext } from '@playwright/test';
  * Hardcoded base URL for this step (per instructions).
  * Later we will refactor to constants/config, but not yet.
  */
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'https://restful-booker.herokuapp.com';
 
 /**
  * Minimal data “model” for our booking request.
