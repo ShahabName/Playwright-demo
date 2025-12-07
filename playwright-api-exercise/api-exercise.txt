@@ -21,7 +21,8 @@ For API testing we could skip browsers, but we’ll install them now so your set
 npx playwright --version
 ===========
 
-7) Create a file named hooks.spec.ts in tests/api folder
+7) create a tests folder inside MyPlaywrightAPI and then create a api folder inside MyPlaywrightAPI/tests/ folder
+Create a file named hooks.spec.ts in tests/api folder
 =========
 import { test } from '@playwright/test';
 
