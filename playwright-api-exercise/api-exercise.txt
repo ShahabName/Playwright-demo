@@ -1,0 +1,324 @@
+2) Create a clean working folder ex: APITesting
+cd <your folder> 
+mkdir MyPlaywrightAPI && cd MyPlaywrightAPI
+==========
+3) Initialize an npm project
+npm init -y
+This creates a package.json so we can add Playwright as a dev dependency.
+==========
+
+4) Install Playwright Test (library + CLI)
+npm i -D @playwright/test
+@playwright/test gives us the test runner and the API client we’ll use later.
+==========
+
+5) Install the browsers
+npx playwright install
+For API testing we could skip browsers, but we’ll install them now so your setup is complete
+==========
+ 
+6) Quick validation
+npx playwright --version
+===========
+
+7) Create a file named hooks.spec.ts in tests/api folder
+=========
+import { test } from '@playwright/test';
+
+let token: string;
+
+test.beforeAll(async () => {
+  console.log('beforeAll - runs only once at start');
+  // Pretend: call API to get token once for all tests
+  token = "dummy-token-123";
+});
+
+test.afterAll(async () => {
+  console.log('afterAll - runs at end only once - Cleaning up after all tests');
+  // Pretend: close DB connection, release resources
+});
+
+test.beforeEach(async () => {
+  console.log('beforeEach - Running before each test');
+});
+
+test.afterEach(async () => {
+  console.log('afterEach - Running after each test');
+});
+
+test('Example API test 1', async () => {
+  console.log(`test 1 - Token available here: ${token}`);
+});
+
+test('Example API test 2', async () => {
+  console.log(`test 2 - Token available here: ${token}`);
+});
+========
+npx playwright test tests/api/hooks.spec.ts --reporter html
+
+
+8) Create a file named fixtures.specs.ts in tests/api folder
+=========
+import { test as base } from '@playwright/test';
+
+// Create a new "test" object with a fixture that provides token
+const test = base.extend<{
+  token: string;
+}>({
+  token: async ({}, use) => {
+    // Setup: Generate a fake token (later we’ll fetch real one)
+    const fakeToken = "token-abc-123"; 
+    
+    // Pass token to tests that need it
+    await use(fakeToken); 
+    // Teardown (not needed here, but can clean up if required)
+  }
+});
+
+// A test that uses the fixture
+test('API test using fixture', async ({ token }) => {
+  console.log(`Token from fixture: ${token}`);
+});
+========
+npx playwright test tests/api/fixtures.spec.ts --reporter html
+9) Create a file named bookingModel.ts in tests/api folder
+=========
+// bookingModel.ts
+export interface BookingModel {
+  firstname: string;
+  lastname: string;
+  totalprice: number;
+  depositpaid: boolean;
+  bookingdates: {
+    checkin: string;
+    checkout: string;
+  };
+}
+
+========
+10) Create a file named usingModel.specs.ts in tests/api folder
+=========
+import { test } from '@playwright/test';
+import { BookingModel } from './bookingModel';
+
+const newBooking: BookingModel = {
+  firstname: "John",
+  lastname: "Doe",
+  totalprice: 120,
+  depositpaid: true,
+  bookingdates: { checkin: "2025-10-01", checkout: "2025-10-05" }
+};
+
+test('Example of Interface', async () => {
+  console.log(newBooking);
+  console.log(newBooking.firstname);
+});
+
+========
+npx playwright test tests/api/usingModel.spec.ts --reporter html
+
+
+
+
+
+11) Create a file named basic-auth-and-create.spec.ts in tests/api folder
+=========
+import { test, expect, request, APIRequestContext } from '@playwright/test';
+
+/**
+ * Hardcoded base URL for this step (per instructions).
+ * Later we will refactor to constants/config, but not yet.
+ */
+const BASE_URL = 'http://localhost:3001';
+
+/**
+ * Minimal data “model” for our booking request.
+ * Keeping it inline (same file) for simplicity in this step.
+ */
+interface BookingRequest {
+  firstname: string;
+  lastname: string;
+  totalprice: number;
+  depositpaid: boolean;
+  bookingdates: {
+    checkin: string; // ISO yyyy-mm-dd
+    checkout: string; // ISO yyyy-mm-dd
+  };
+  additionalneeds?: string;
+}
+
+/**
+ * Global Variables Used Here. We’ll share these across tests via module-scope variables.
+ */
+let api: APIRequestContext;
+let token: string;
+
+/**
+ * HOOKS
+ * - beforeAll: create an API context and fetch token once for this file
+ * - afterAll: dispose API context
+ */
+test.beforeAll(async () => {
+  // Create an isolated API context with a baseURL
+  api = await request.newContext({ baseURL: BASE_URL });
+
+  // Call auth endpoint to create a token.
+  // RESTful Booker uses /auth to generate a token via POST with username/password.
+  const authResponse = await api.post('/auth', {
+    data: {
+      username: 'admin',
+      password: 'password123',
+    },
+  });
+
+  expect(authResponse.ok()).toBeTruthy();
+  expect(authResponse.status()).toBe(200);
+
+  const authBody = await authResponse.json();
+  // According to the API, success returns { token: "<string>" }
+  token = authBody?.token;
+
+  // Basic check to ensure token is present
+  expect(typeof token).toBe('string');
+  expect(token.length).toBeGreaterThan(0);
+});
+
+test.afterAll(async () => {
+  await api.dispose();
+});
+
+/**
+ * TEST: Create a booking using the token obtained in beforeAll.
+ */
+test('CreateBooking with token (basic single-file flow)', async () => {
+  const bookingPayload: BookingRequest = {
+    firstname: 'John',
+    lastname: 'Doe',
+    totalprice: 150,
+    depositpaid: true,
+    bookingdates: {
+      checkin: '2025-10-01',
+      checkout: '2025-10-05',
+    },
+    additionalneeds: 'Breakfast',
+  };
+
+  // Hit the API endpoint for booking and create a booking
+  const response = await api.post('/booking', {
+    headers: {
+      // restful-booker commonly accepts token via Cookie for updates/deletes.
+      // We show the pattern here for learning; exact auth usage can vary by endpoint.
+      Cookie: `token=${token}`,
+      'Content-Type': 'application/json',
+    },
+    data: bookingPayload,
+  });
+
+  // Expect HTTP 200 or 201 depending on implementation; restful-booker typically returns 200.
+  expect(response.ok()).toBeTruthy();
+
+  const body = await response.json();
+  // Typical response shape: { bookingid: number, booking: {...} }
+  expect(body).toHaveProperty('bookingid');
+  expect(body).toHaveProperty('booking');
+
+  const { bookingid, booking } = body;
+  console.log('Created bookingId:', bookingid);
+  console.log('Created booking object:', booking);
+
+  // A few field-level checks to build confidence
+  expect(booking.firstname).toBe(bookingPayload.firstname);
+  expect(booking.lastname).toBe(bookingPayload.lastname);
+  expect(booking.bookingdates.checkin).toBe(bookingPayload.bookingdates.checkin);
+  expect(booking.bookingdates.checkout).toBe(bookingPayload.bookingdates.checkout);
+});
+
+========
+npx playwright test tests/api/basic-auth-and-create.spec.ts --reporter=html
+
+View the Report
+
+
+Task 12: This will test your Playwright Coding Skills learned so far
+======================================================================
+Modularity: Split into Two Independent Modules (getToken and CreateBooking)
+
+Task 12.1:
+Split the basic-auth-and-create.spec.ts file into seprate test modules, independend of each other.
+File Name: get-token.spec.ts
+File Name: create-booking.spec.ts
+
+Task 12.2:
+File get-token.spec.ts:
+Restructure the file so that you have following structure:
+//Import statement
+// Set the Base URL 
+// USe APIRequestContext
+Hooks: test.beforeAll
+Hooks: test.afterAll
+// Create a new test for get token
+test('getToken: should create a token from /auth', async () => {
+	//Post to API endpoint /auth
+	// Send JSON payload to server with username and password
+  });
+// Add assert to check response is OK
+const body = await response.json();
+// Add Asserts to check response
+// Get JSON data into JS Object 
+// Add as many asserts that you can think of for token here
+// Add to console a message
+console.log('Auth token received (masked):', body.token.slice(0, 4) + '***');
+Run the test file and generate report
+
+Task 12.3:
+create-booking.spec.ts:
+Restructure the file so that you have following structure:
+//Import statement
+// Set the Base URL 
+// Create interface named BookingRequest
+// Use APIRequestContext
+Hooks: test.beforeAll
+Hooks: test.afterAll
+// Create a new test for this file
+// Create a test for this file
+test('CreateBooking: should create a new booking and return id + object', async () => {
+	// Create Payload
+	// Call API endpoint /booking
+	// Set headers
+	// Send JSON data
+	// Add assert to check response is OK
+	// Send JSON payload to server with username and password
+  });
+// Add assert to check response is OK
+const body = await response.json();
+// Add asserts to check JSON Response Body
+// Add Asserts to check response
+// Get JSON data into JS Object 
+// Add as many asserts that you can think of to check if they got the data back in booking same as what we have send in Request Payload
+// Add to console a message
+console.log('Created bookingId:', bookingid);
+Run the test file and generate report and check if your program is working well.
+
+
+Task 13:
+Extend your booking script to get booking details by BookingID using GET method.
+
+Add a new test to your create-booking.spec.ts test file.
+
+USe the booking ID received in previous step and implement GET call 
+https://restful-booker.herokuapp.com/apidoc/index.html#api-Booking-GetBooking defined here.
+You then need to match if booking details stored on server matches to the booking details send by you in CreateBooking POST method.
+
+Log messages to console.
+
+Task 14:
+Run the test file and generate report and check if your program is working well.
+
+Task 15 (Optional - No Debugging help on this):
+Open a powershell.
+Create full framework structure.
+Run at your own risk. Otherwise create these manually as we do POM UI Framework.
+The Powershell code will not existing directories.
+To be safe, first try running it in to a empty directory. check folder structure is correct. delete the experimenting folder.
+# Safe one-liner - skips existing directories
+@("playwright-report","test-results","tests","tests\api","tests\api\services","tests\api\types","tests\api\utils","tests\ui","tests\ui\data","tests\ui\pages","tests\ui\singlefile","tests\ui\tests","tests\ui\utils") | ForEach-Object { if (!(Test-Path $_)) { New-Item -ItemType Directory -Path $_ | Out-Null; Write-Host "  CREATED: $_" -ForegroundColor Green } else { Write-Host "  SKIPPED: $_ (exists)" -ForegroundColor Gray } }
